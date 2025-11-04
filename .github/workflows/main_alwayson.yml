@@ -1,12 +1,8 @@
-# Build and deploy a Next.js app to Azure Web App using Oryx
-# Docs: https://github.com/Azure/webapps-deploy
-
-name: Build and deploy app to Azure Web App - AlwaysOn
+name: Build and deploy pre-built Next.js app to Azure Web App - AlwaysOn
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -24,20 +20,39 @@ jobs:
         with:
           node-version: '22.x'
 
-      - name: Install dependencies and build
+      - name: Install production dependencies and build
         env:
           NEXT_PUBLIC_SANITY_DATASET: ${{ vars.NEXT_PUBLIC_SANITY_DATASET }}
           NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ vars.NEXT_PUBLIC_SANITY_PROJECT_ID }}
+          NEXT_PUBLIC_SANITY_API_VERSION: ${{ vars.NEXT_PUBLIC_SANITY_API_VERSION }}
           SANITY_API_TOKEN: ${{ secrets.SANITY_API_TOKEN }}
         run: |
-          npm ci
+          # remove any existing node_modules to ensure clean install
+          rm -rf node_modules
+          # install only production dependencies (much smaller)
+          npm ci --omit=dev
+          # ensure next is available in dependencies
           npm run build
 
-      - name: Upload build artifacts
+      - name: Prepare deployment package (prune dev files)
+        run: |
+          # Keep only what's needed to run the built Next.js app
+          mkdir -p deploy_package
+          cp -r package.json next.config.js public .next node_modules deploy_package || true
+          # copy any other runtime files your app needs (adjust as needed)
+          # e.g. cp -r server.js deploy_package || true
+
+      - name: Archive deployment package
+        run: |
+          cd deploy_package
+          tar -czf ../next-deploy.tar.gz .
+          cd ..
+
+      - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: next-app
-          path: .
+          name: next-deploy
+          path: next-deploy.tar.gz
 
   deploy:
     runs-on: ubuntu-latest
@@ -47,10 +62,16 @@ jobs:
       contents: read
 
     steps:
-      - name: Download build artifacts
+      - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
-          name: next-app
+          name: next-deploy
+          path: .
+
+      - name: Extract deployment package
+        run: |
+          mkdir -p extracted_deploy
+          tar -xzf next-deploy.tar.gz -C extracted_deploy
 
       - name: Login to Azure
         uses: azure/login@v2
@@ -59,10 +80,17 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_62CD7C60A56C41E2986B71CA17ECF3DC }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_4654E4A4F4474E989F66FC1935AB9951 }}
 
-      - name: Deploy to Azure Web App
+      - name: Deploy to Azure Web App (pre-built)
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'AlwaysOn'
           slot-name: 'Production'
-          package: .
-          enable-oryx-build: true
+          package: ./extracted_deploy
+
+      - name: Restart Azure Web App
+        run: |
+          az webapp restart --resource-group gakim_resources --name AlwaysOn
+        env:
+          AZURE_CLIENT_ID: ${{ secrets.AZUREAPPSERVICE_CLIENTID_449FEF804E3D41CD9E86154FF9155F01 }}
+          AZURE_TENANT_ID: ${{ secrets.AZUREAPPSERVICE_TENANTID_62CD7C60A56C41E2986B71CA17ECF3DC }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_4654E4A4F4474E989F66FC1935AB9951 }}
