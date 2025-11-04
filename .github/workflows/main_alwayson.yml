@@ -1,77 +1,51 @@
-name: Build and deploy pre-built Next.js app to Azure Web App - AlwaysOn
+name: Build and deploy app to Azure Web App - AlwaysOn
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Set up Node.js version
         uses: actions/setup-node@v3
         with:
           node-version: '22.x'
 
-      - name: Install production dependencies and build
-        env:
-          NEXT_PUBLIC_SANITY_DATASET: ${{ vars.NEXT_PUBLIC_SANITY_DATASET }}
-          NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ vars.NEXT_PUBLIC_SANITY_PROJECT_ID }}
-          NEXT_PUBLIC_SANITY_API_VERSION: ${{ vars.NEXT_PUBLIC_SANITY_API_VERSION }}
-          SANITY_API_TOKEN: ${{ secrets.SANITY_API_TOKEN }}
-        run: |
-          # remove any existing node_modules to ensure clean install
-          rm -rf node_modules
-          # install only production dependencies (much smaller)
-          npm install
-          # ensure next is available in dependencies
-          npm run build
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Prepare deployment package (prune dev files)
-        run: |
-          # Keep only what's needed to run the built Next.js app
-          mkdir -p deploy_package
-          cp -r package.json next.config.js public .next node_modules deploy_package || true
-          # copy any other runtime files your app needs (adjust as needed)
-          # e.g. cp -r server.js deploy_package || true
+      - name: Build Next.js app
+        run: npm run build
 
-      - name: Archive deployment package
+      - name: Archive production build
         run: |
-          cd deploy_package
-          tar -czf ../next-deploy.tar.gz .
-          cd ..
-
-      - name: Upload build artifact
+          mkdir build
+          cp -r .next public package.json next.config.js build/
+          # Include env file if needed for runtime
+        # Upload artifact
+      - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
-          name: next-deploy
-          path: next-deploy.tar.gz
+          name: next-app
+          path: build/
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
-    permissions:
-      id-token: write
-      contents: read
 
     steps:
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
-          name: next-deploy
+          name: next-app
           path: .
-
-      - name: Extract deployment package
-        run: |
-          mkdir -p extracted_deploy
-          tar -xzf next-deploy.tar.gz -C extracted_deploy
 
       - name: Login to Azure
         uses: azure/login@v2
@@ -80,17 +54,8 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_62CD7C60A56C41E2986B71CA17ECF3DC }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_4654E4A4F4474E989F66FC1935AB9951 }}
 
-      - name: Deploy to Azure Web App (pre-built)
+      - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'AlwaysOn'
-          slot-name: 'Production'
-          package: ./extracted_deploy
-
-      - name: Restart Azure Web App
-        run: |
-          az webapp restart --resource-group gakim_resources --name AlwaysOn
-        env:
-          AZURE_CLIENT_ID: ${{ secrets.AZUREAPPSERVICE_CLIENTID_449FEF804E3D41CD9E86154FF9155F01 }}
-          AZURE_TENANT_ID: ${{ secrets.AZUREAPPSERVICE_TENANTID_62CD7C60A56C41E2986B71CA17ECF3DC }}
-          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_4654E4A4F4474E989F66FC1935AB9951 }}
+          package: .
