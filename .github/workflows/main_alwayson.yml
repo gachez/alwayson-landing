@@ -30,7 +30,7 @@ jobs:
           # remove any existing node_modules to ensure clean install
           rm -rf node_modules
           # install only production dependencies (much smaller)
-          npm ci --omit=dev
+          npm install
           # ensure next is available in dependencies
           npm run build
 
