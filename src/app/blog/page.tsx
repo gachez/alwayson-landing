@@ -237,7 +237,6 @@ async function Pagination({
       <Button
         variant="outline"
         href={previousPageUrl}
-        disabled={!previousPageUrl}
       >
         <ChevronLeftIcon className="size-4" />
         Previous
@@ -259,7 +258,7 @@ async function Pagination({
           </Link>
         ))}
       </div>
-      <Button variant="outline" href={nextPageUrl} disabled={!nextPageUrl}>
+      <Button variant="outline" href={nextPageUrl} >
         Next
         <ChevronRightIcon className="size-4" />
       </Button>

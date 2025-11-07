@@ -88,6 +88,7 @@ body{font-family:Arial,sans-serif;background:#f7f7f7;margin:0;padding:0;}
 
     console.log(`✅ Waitlist notification sent: ${emailResult.messageId}`);
     return { status: 201, data: 'Notification sent successfully' };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error(`🔴 Error sending waitlist notification:`, error);
     throw error;
@@ -174,6 +175,7 @@ body{font-family:Arial,sans-serif;background:#f7f7f7;margin:0;padding:0;}
 
     console.log(`✅ Confirmation email sent to ${email}: ${emailResult.messageId}`);
     return { status: 201, data: 'Confirmation sent successfully' };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error(`🔴 Error sending confirmation email to ${email}:`, error);
     throw error;

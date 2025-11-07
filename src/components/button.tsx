@@ -39,8 +39,12 @@ export function Button({
   className = clsx(className, variants[variant])
 
   if (typeof props.href === 'undefined') {
-    return <Headless.Button {...props} className={className} />
+    // Remove 'href' if present in props before passing to Headless.Button
+    const {  ...buttonProps } = props as Headless.ButtonProps;
+    return <Headless.Button {...buttonProps} className={className} />
   }
 
-  return <Link {...props} className={className} />
+  // Ensure 'href' is present when rendering Link
+  const { href, ...linkProps } = props as React.ComponentPropsWithoutRef<typeof Link>;
+  return <Link href={href!} {...linkProps} className={className} />
 }

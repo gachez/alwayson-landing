@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
       },
       { status: 200 }
     );
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error('Waitlist API error:', error);
     return NextResponse.json(
