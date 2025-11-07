@@ -122,7 +122,7 @@ function SocialLinks() {
 function Copyright() {
   return (
     <div className="text-sm/6 text-gray-950">
-      &copy; {new Date().getFullYear()} Gakim .
+      &copy; {new Date().getFullYear()} Gakim Digital .
     </div>
   )
 }
@@ -140,9 +140,6 @@ export function Footer() {
                   <PlusGridItem className="pt-6 lg:pb-6">
                     <Logo />
                   </PlusGridItem>
-                </div>
-                <div className="col-span-2 grid grid-cols-2 gap-x-8 gap-y-12 lg:col-span-4 lg:grid-cols-subgrid lg:pt-6">
-                  <Sitemap />
                 </div>
               </div>
             </PlusGridRow>
