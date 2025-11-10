@@ -31,11 +31,8 @@ jobs:
       - name: Archive production build
         run: |
           mkdir build
-          cp -r .next public package.json build/
-          # Copy next.config.js only if it exists
-          [ -f next.config.js ] && cp next.config.js build/ || true
-          # Copy next.config.mjs if it exists instead
-          [ -f next.config.mjs ] && cp next.config.mjs build/ || true
+          cp -r .next public package.json next.config.js build/
+          # Include env file if needed for runtime
         # Upload artifact
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
