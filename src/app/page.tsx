@@ -3,7 +3,6 @@ import { Button } from '@/components/button'
 import { Container } from '@/components/container'
 import { Footer } from '@/components/footer'
 import { Gradient } from '@/components/gradient'
-import { Link } from '@/components/link'
 import { LogoCloud } from '@/components/logo-cloud'
 import { Navbar } from '@/components/navbar'
 import { Screenshot } from '@/components/screenshot'
@@ -13,7 +12,7 @@ import { NewsLetter } from '@/components/newsletter';
 
 export const metadata: Metadata = {
   description:
-    'AlwaysOn helps you sell more by revealing sensitive information about your customers.',
+    'AlwaysOn - Data-driven AI automation that boosts AOV, traffic, and conversions without you lifting a finger.',
 }
 
 function Hero() {

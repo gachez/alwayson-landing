@@ -50,9 +50,12 @@ export function Navbar({ banner }: { banner?: React.ReactNode }) {
         <PlusGridRow className="relative flex justify-between">
           <div className="relative flex gap-6">
             <PlusGridItem className="py-3">
+              <div className='flex space-between items-center' >
+                <img src="/logo-timeline/logo.png" alt='' width="48px"/>
               <Link href="/" title="Home">
                 AlwaysOn
               </Link>
+                </div>
             </PlusGridItem>
             {banner && (
               <div className="relative hidden items-center py-3 lg:flex">
