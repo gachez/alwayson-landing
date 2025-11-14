@@ -2,6 +2,7 @@ import { SanityLive } from '@/sanity/live'
 import { revalidateSyncTags } from '@/sanity/revalidateSyncTags'
 import '@/styles/tailwind.css'
 import type { Metadata } from 'next'
+import { Analytics } from "@vercel/analytics/next"
 
 export const metadata: Metadata = {
   title: {
@@ -32,6 +33,7 @@ export default function RootLayout({
       <body className="text-gray-950 antialiased">
         {children}
         <SanityLive revalidateSyncTags={revalidateSyncTags} />
+         <Analytics />
       </body>
     </html>
   )
