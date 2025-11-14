@@ -8,7 +8,7 @@ import { Navbar } from '@/components/navbar'
 import { Screenshot } from '@/components/screenshot'
 import { Heading } from '@/components/text'
 import type { Metadata } from 'next'
-import { NewsLetter } from '@/components/newsletter';
+import NewsLetter  from '@/components/newsletter';
 
 export const metadata: Metadata = {
   description:

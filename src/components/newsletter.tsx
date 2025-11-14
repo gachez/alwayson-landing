@@ -2,18 +2,25 @@
 
 import { useState } from 'react';
 
-export function NewsLetter() {
+export default function NewsLetter() {
   const [email, setEmail] = useState('');
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [status, setStatus] = useState('idle');
   const [message, setMessage] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus('loading');
     setMessage('');
 
     try {
-      const response = await fetch('/api/waitlist', {
+      // Use absolute URL with www to match your actual domain
+      const apiUrl = typeof window !== 'undefined' 
+        ? `${window.location.origin}/api/waitlist`
+        : '/api/waitlist';
+
+      console.log('Submitting to:', apiUrl); // Debug log
+
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -46,7 +53,7 @@ export function NewsLetter() {
             Get notified when we launch          
           </h2>
           <p className="mx-auto mt-6 max-w-lg text-center text-lg text-white/90">
-            Join our early access list and get 3 months free when we launch.
+            Join our early access list and get 1 months free when we launch.
             We will notify you as soon as AlwaysOn opens for beta testers.
           </p>
           <form onSubmit={handleSubmit} className="mx-auto mt-10 flex max-w-md flex-col gap-4">
