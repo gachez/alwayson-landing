@@ -30,7 +30,7 @@ function Hero() {
             Data-driven AI automation that boosts AOV, traffic, and conversions without you lifting a finger.
           </p>
           <div className="mt-12 flex flex-col gap-x-6 gap-y-4 sm:flex-row">
-            <Button href="#">Join waitlist</Button>
+            <Button href="#newsletter">Join waitlist</Button>
           </div>
         </div>
       </Container>

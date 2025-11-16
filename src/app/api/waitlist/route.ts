@@ -23,14 +23,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    try {
     // Send notification email to you
     await sendWaitlistNotification({
       email,
       timestamp: new Date(),
-    });
+    });      
+    } catch (error) {
+      console.error('Error sending notification email:', error);
+    }
 
+    try {
+     
     // Send confirmation email to the user
-    await sendWaitlistConfirmation(email);
+    await sendWaitlistConfirmation(email); 
+    } catch (error) {
+      console.error('Error sending confirmation email:', error);
+    }
 
     // Optional: Save to database here
     // await db.waitlist.create({ data: { email, createdAt: new Date() } });
@@ -47,8 +56,8 @@ export async function POST(request: NextRequest) {
     console.error('Waitlist API error:', error);
     return NextResponse.json(
       { 
-        error: 'Failed to process signup. Please try again.',
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        error: 'Error processing signup. Please try again.',
+        details: error.message
       },
       { status: 500 }
     );
